@@ -7,7 +7,7 @@ const ProfileScreen = () => {
     const theme = useTheme();
     const { signOut } = useAuth();
     return (
-        <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
+        <View style={{ flex: 1 }}>
             <Text>Profile</Text>
             <Button
                 mode="contained"

@@ -1,11 +1,9 @@
 import { account } from "@/lib/appWrite";
+import { ResponseStatus } from "@/types/types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ID, Models } from "react-native-appwrite";
 
-type ResponseStatus = {
-    success: boolean;
-    message: string;
-};
+
 
 type AuthContextType = {
     user: Models.User<Models.Preferences> | null;

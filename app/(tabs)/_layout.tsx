@@ -9,6 +9,7 @@ export default function RootLayout() {
     <ProtectedRoute>
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
+        
       >
         <Tabs.Screen
           name="home"

@@ -18,7 +18,7 @@ const TabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation })
     }
 
     return (
-        <View style={styles.tabBar}>
+        <View style={[styles.tabBar, { backgroundColor: theme.colors.primaryContainer }]}>
             {state.routes.map((route, index) => {
                 const { options } = descriptors[route.key];
                 const label =
@@ -63,7 +63,7 @@ const TabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation })
                         {
                             icons[route.name as keyof typeof icons]({ color: isFocused ? theme.colors.primary : theme.colors.secondary })
                         }
-                        <Text style={{ color: isFocused ? theme.colors.primary : theme.colors.secondary, fontSize:11}}>
+                        <Text style={{ color: isFocused ? theme.colors.primary : theme.colors.secondary, fontSize: 11 }}>
                             {typeof label === "string" ? label : ""}
                         </Text>
                     </TouchableOpacity>
