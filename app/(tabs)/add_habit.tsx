@@ -2,7 +2,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { addHabit, AddHabitParams } from "@/services/habits";
 import { Frequency } from "@/types/types";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import {
@@ -22,6 +22,7 @@ export default function AddHabitScreen() {
 
     const { user } = useAuth();
     const { showToast } = useApp();
+    const queryClient = useQueryClient();
 
     const { mutate: addHabitMutation, isPending } = useMutation({
         mutationFn: (data: AddHabitParams) => addHabit(data),
@@ -30,6 +31,7 @@ export default function AddHabitScreen() {
             setDescription("");
             setFrequency("Daily");
             showToast({ type: "success", message: "Habit added successfully!" });
+            queryClient.invalidateQueries({ queryKey: ['habits'] });
         },
         onError: (error: Error) => {
             showToast({ type: "error", message: error.message });

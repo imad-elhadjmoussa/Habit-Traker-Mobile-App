@@ -1,6 +1,6 @@
 import { database, DATABASE_ID, HABITS_COLLECTION_ID } from "@/lib/appWrite"
-import { Frequency, ResponseStatus } from "@/types/types"
-import { ID } from "react-native-appwrite"
+import { Frequency, Habit, ResponseStatus } from "@/types/types"
+import { ID, Query } from "react-native-appwrite"
 
 export type AddHabitParams = {
     user_id: string;
@@ -39,5 +39,32 @@ export const addHabit = async (params: AddHabitParams) => {
             streak_count: 0,
             last_completed: new Date(0).toISOString()
         }
+    )
+}
+
+export const getHabitsByUserId = async (user_id: string): Promise<Habit[]> => {
+    const habits = await database.listDocuments(
+        DATABASE_ID,
+        HABITS_COLLECTION_ID,
+        [Query.equal("user_id", user_id)]
+    )
+    return habits.documents.map(doc => ({
+        $id: doc.$id,
+        $createdAt: doc.$createdAt,
+        $updatedAt: doc.$updatedAt,
+        user_id: doc.user_id,
+        title: doc.title,
+        description: doc.description,
+        frequency: doc.frequency,
+        streak_count: doc.streak_count,
+        last_completed: doc.last_completed
+    })) as Habit[]
+}
+
+export const deleteHabitById = async (habitId: string): Promise<void> => {
+    await database.deleteDocument(
+        DATABASE_ID,
+        HABITS_COLLECTION_ID,
+        habitId
     )
 }

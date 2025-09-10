@@ -11,3 +11,4 @@ export const database = new Databases(client)
 
 export const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID as string
 export const HABITS_COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_HABITS_COLLECTION_ID as string
+export const COMPLETIONS_COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COMPLETIONS_COLLECTION_ID as string
