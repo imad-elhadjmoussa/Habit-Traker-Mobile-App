@@ -1,6 +1,6 @@
 import { COMPLETIONS_COLLECTION_ID, database, DATABASE_ID, HABITS_COLLECTION_ID } from "@/lib/appWrite"
-import { Habit } from "@/types/types"
-import { ID } from "react-native-appwrite"
+import { Completion, Habit } from "@/types/types"
+import { ID, Query } from "react-native-appwrite"
 
 
 export const addCompletions = async (user_id: string, habit: Habit): Promise<void> => {
@@ -11,11 +11,11 @@ export const addCompletions = async (user_id: string, habit: Habit): Promise<voi
         {
             user_id,
             habit_id: habit.$id,
-            last_completed: new Date().toISOString()
+            completed_at: new Date().toISOString()
         }
     )
 
-    // update habit last_completed and streak_count
+    // update habit completed_at and streak_count
     await database.updateDocument(
         DATABASE_ID,
         HABITS_COLLECTION_ID,
@@ -28,3 +28,35 @@ export const addCompletions = async (user_id: string, habit: Habit): Promise<voi
 
 }
 
+export const getTodayCompletions = async (user_id: string): Promise<string[]> => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const completions = await database.listDocuments(
+        DATABASE_ID,
+        COMPLETIONS_COLLECTION_ID,
+        [
+            Query.equal("user_id", user_id),
+            Query.greaterThanEqual("completed_at", today.toISOString())
+        ]
+    )
+
+    return completions.documents.map((doc) => doc.habit_id)
+}
+
+export const getCompletions = async (user_id: string): Promise<Completion[]> => {
+    const completions = await database.listDocuments(
+        DATABASE_ID,
+        COMPLETIONS_COLLECTION_ID,
+        [
+            Query.equal("user_id", user_id)
+        ]
+    )
+    return completions.documents.map(doc => ({
+        $id: doc.$id,
+        $createdAt: doc.$createdAt,
+        $updatedAt: doc.$updatedAt,
+        user_id: doc.user_id,
+        habit_id: doc.habit_id,
+        completed_at: doc.completed_at
+    })) as Completion[]
+}

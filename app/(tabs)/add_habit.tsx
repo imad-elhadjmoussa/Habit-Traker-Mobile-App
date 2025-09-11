@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         justifyContent: "flex-start",
+        backgroundColor: "white",
     },
     header: {
         fontSize: 22,

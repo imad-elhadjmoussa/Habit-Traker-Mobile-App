@@ -9,12 +9,13 @@ export default function RootLayout() {
     <ProtectedRoute>
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
-        
+        screenOptions={{ headerShown: false }}
       >
         <Tabs.Screen
           name="home"
           options={{
             title: "Home ",
+            
           }}
 
         />

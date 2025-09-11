@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native'
 import React, { useRef } from 'react'
 import { useTheme } from 'react-native-paper'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -9,7 +9,7 @@ import HabitCard from '@/components/HabitCard'
 import HabitCardSkeleton from '@/components/LoadingSkelton/HabitCardSkelton'
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler'
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'
-import { addCompletions } from '@/services/completions'
+import { addCompletions, getTodayCompletions } from '@/services/completions'
 import { useApp } from '@/contexts/AppContext'
 
 const HomeScreen = () => {
@@ -23,6 +23,11 @@ const HomeScreen = () => {
     const { data: habits, isLoading, error } = useQuery<Habit[]>({
         queryKey: ['habits'],
         queryFn: () => getHabitsByUserId(user?.$id ?? "")
+    })
+
+    const { data: completedHabits } = useQuery<string[]>({
+        queryKey: ['completedHabits'],
+        queryFn: () => getTodayCompletions(user?.$id ?? "")
     })
 
     const { mutate: deleteHabit } = useMutation({
@@ -47,10 +52,16 @@ const HomeScreen = () => {
     })
 
 
-    const renderLeftAction = () => {
+    const renderLeftAction = (habitId: string) => {
         return (
             <View style={styles.leftAction}>
-                <AntDesign name="checkcircle" size={32} color="white" />
+                {
+                    isHabitCompletedToday(habitId) ? (
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Completed</Text>
+                    ) : (
+                        <AntDesign name="checkcircle" size={32} color="white" />
+                    )
+                }
             </View>
         )
     }
@@ -72,13 +83,22 @@ const HomeScreen = () => {
 
     const handelComplete = (habitId: string) => {
         const habit = habits?.find(h => h.$id === habitId);
-        console.log(habit);
+        if (isHabitCompletedToday(habitId)) {
+            showToast({ type: "info", message: "Habit already completed today!" })
+            if (swipeAbleRefs.current[habitId]) {
+                swipeAbleRefs.current[habitId]?.close();
+            }
+            return;
+        }
         if (!habit || !user) return;
         completeHabit({ user_id: user.$id, habit });
         if (swipeAbleRefs.current[habitId]) {
             swipeAbleRefs.current[habitId]?.close();
         }
+    }
 
+    const isHabitCompletedToday = (habitId: string) => {
+        return completedHabits?.includes(habitId);
     }
 
     return (
@@ -87,6 +107,7 @@ const HomeScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 130 }}
         >
+
             <Text style={[styles.title]}>
                 Today&apos;s Habits
             </Text>
@@ -106,10 +127,10 @@ const HomeScreen = () => {
                                 ref={ref => { swipeAbleRefs.current[habit.$id] = ref; }}
                                 overshootLeft={false}
                                 overshootRight={false}
-                                renderLeftActions={renderLeftAction}
+                                renderLeftActions={() => renderLeftAction(habit.$id)}
                                 renderRightActions={renderRightAction}
                                 key={habit.$id}
-                                containerStyle={{ borderRadius: 16, shadowColor: "#000", elevation: 4, }}
+                                containerStyle={{ borderRadius: 16, shadowColor: "#000", elevation: 4 }}
                                 onSwipeableOpen={(direction) => {
                                     if (direction === 'right') {
                                         handelDelete(habit.$id);
@@ -119,7 +140,10 @@ const HomeScreen = () => {
 
                                 }}
                             >
-                                <HabitCard habit={habit} />
+                                <HabitCard
+                                    habit={habit}
+                                    isCompletedToday={isHabitCompletedToday(habit.$id)}
+                                />
                             </Swipeable>
                         ))}
                     </View>
@@ -138,6 +162,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+        backgroundColor: '#ffffffff',
     },
     title: {
         fontSize: 24,

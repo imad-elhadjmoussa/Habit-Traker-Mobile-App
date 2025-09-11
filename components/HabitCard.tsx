@@ -4,9 +4,14 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Card, Text, Title, Paragraph, Badge } from "react-native-paper";
 
-const HabitCard = ({ habit }: { habit: Habit }) => {
+type HabitCardProps = {
+    habit: Habit;
+    isCompletedToday?: boolean;
+};
+
+const HabitCard = ({ habit, isCompletedToday }: HabitCardProps) => {
     return (
-        <Card style={styles.card}>
+        <Card style={[styles.card && { backgroundColor: isCompletedToday ? "#e6fdebff" : "white" }]}>
             <Card.Content>
                 <Title>{habit.title}</Title>
                 <Paragraph>{habit.description}</Paragraph>
@@ -30,7 +35,9 @@ const HabitCard = ({ habit }: { habit: Habit }) => {
 const styles = StyleSheet.create({
     card: {
         borderRadius: 16,
+        backgroundColor: "white",
     },
+    
     streakContainer: {
         flexDirection: "row",
         alignItems: "center",
